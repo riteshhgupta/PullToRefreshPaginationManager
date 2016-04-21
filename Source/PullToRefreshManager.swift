@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 public protocol PullToRefreshManagerDelegate: NSObjectProtocol {
-	func refreshManagerDidStartLoading(controller: PullToRefreshManager, onCompletion: CompletionHandler)
+	func pullToRefreshManagerDidStartLoading(controller: PullToRefreshManager, onCompletion: CompletionHandler)
 }
 
 public class PullToRefreshManager: NSObject {
@@ -73,7 +73,7 @@ extension PullToRefreshManager: ScrollViewStateControllerDataSource {
 extension PullToRefreshManager: ScrollViewStateControllerDelegate {
 	
 	public func stateControllerDidStartLoading(controller: ScrollViewStateController, onCompletion: CompletionHandler) {
-		self.delegate?.refreshManagerDidStartLoading(self, onCompletion: onCompletion)
+		self.delegate?.pullToRefreshManagerDidStartLoading(self, onCompletion: onCompletion)
 	}
 	
 }

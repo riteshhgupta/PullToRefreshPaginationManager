@@ -42,7 +42,7 @@ class ViewController: UIViewController {
 
 extension ViewController: PullToRefreshManagerDelegate {
 	
-	func refreshManagerDidStartLoading(controller: PullToRefreshManager, onCompletion: CompletionHandler) {
+	func pullToRefreshManagerDidStartLoading(controller: PullToRefreshManager, onCompletion: CompletionHandler) {
 		let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
 		dispatch_after(delayTime, dispatch_get_main_queue()) { () -> Void in
 			onCompletion()

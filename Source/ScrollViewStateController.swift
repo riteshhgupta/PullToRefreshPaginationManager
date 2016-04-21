@@ -144,6 +144,7 @@ public class ScrollViewStateController: NSObject {
 	func updateActivityIndicatorStyle(newStyle: UIActivityIndicatorViewStyle) {
 		self.loadingView.removeFromSuperview();
 		self.loadingView = UIActivityIndicatorView(activityIndicatorStyle: newStyle)
+		self.loadingView.hidesWhenStopped = false
 		addDefaultLoadView()
 	}
 	
@@ -157,6 +158,9 @@ public class ScrollViewStateController: NSObject {
 		}
 		
 		if self.scrollView.dragging {
+			self.loadingView.alpha = fabs(self.scrollView.contentOffset.y)/128.0
+			self.loadingView.transform = CGAffineTransformMakeRotation((CGFloat(2*M_PI))*(fabs(self.scrollView.contentOffset.y)/128))
+			
 			switch self.state {
 			case .Normal:
 				if self.dataSource.stateControllerDidReleaseToStartLoading(offset) {
