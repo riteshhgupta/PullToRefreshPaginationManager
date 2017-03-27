@@ -1,5 +1,5 @@
-#PullToRefreshPaginationManager
-##About
+# PullToRefreshPaginationManager
+## About
 
 PullToRefreshPaginationManager allows you to have **Refresh** (pull-to-refresh) & **Pagination** (load-more) functionality with just few lines of code. It can used with ```UIScrollView``` or its subclasses like ```UITableView``` & ```UICollectionView```. There are 2 ways of using it:
 
@@ -22,7 +22,7 @@ let horizontalPaginationManager = HorizontalPaginationManager(scrollView: self.s
 Abitlity to quickly write your own custom refresh & pagination-manager by simply defining the ```ScrollViewStateControllerDataSource``` methods to defines their custom functionality. To know more about this you can checkout how I have made the default managers.
 
 
-##Installation
+## Installation
 
 To integrate PullToRefreshPaginationManager into your Xcode project using CocoaPods, specify it in your Podfile:
 
@@ -35,11 +35,11 @@ pod 'PullToRefreshPaginationManager', :git => 'https://github.com/riteshhgupta/P
 ```
 
 
-##Detail-Usage
+## Detail-Usage
 
 There are 2 ways of using it:
 
-###Default Managers
+### Default Managers
 Default managers allows to have the following functionalities with few lines of code and they provide their delegate methods to make the api call or animate your custom loader.
 
 - PullToRefreshManager
@@ -71,7 +71,7 @@ let horizontalPaginationManager = HorizontalPaginationManager(scrollView: self.s
 func horizontalPaginationManagerDidStartLoading(controller: HorizontalPaginationManager, onCompletion: CompletionHandler)
 ```
 
-###Custom Manager
+### Custom Manager
 
 Other than the default managers if you feel you need more customizations then you can directly implement the following ```ScrollViewStateControllerDataSource``` methods to define your various custom conditions in your controller or inside any manager class:
 
