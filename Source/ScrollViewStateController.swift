@@ -99,10 +99,10 @@ open class ScrollViewStateController: NSObject {
 	
 	weak var dataSource: ScrollViewStateControllerDataSource!
 	weak var delegate: ScrollViewStateControllerDelegate!
+	var loadingView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
 	
 	fileprivate var scrollView: UIScrollView!
 	fileprivate var state: ScrollViewStateControllerState = .normal
-	fileprivate var loadingView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
 	
 	public init(scrollView: UIScrollView?, dataSource: ScrollViewStateControllerDataSource?, delegate: ScrollViewStateControllerDelegate?, showDefaultLoader: Bool = true) {
 		super.init()
@@ -128,16 +128,16 @@ open class ScrollViewStateController: NSObject {
 	}
 	
 	override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-		if keyPath == "contentOffset" {
-			var newOffset: CGFloat = 0
-			if dataSource.stateControllerWillObserveVerticalScrolling() {
-				newOffset = ((change?[NSKeyValueChangeKey.newKey] as AnyObject).cgPointValue?.y)!
-				
-			} else {
-				newOffset = ((change?[NSKeyValueChangeKey.newKey] as AnyObject).cgPointValue?.x)!
-			}
-			
-			handleLoadingCycle(newOffset)
+		if delegate != nil, dataSource != nil {
+			if keyPath == "contentOffset" {
+				var newOffset: CGFloat = 0
+				if dataSource.stateControllerWillObserveVerticalScrolling() {
+					newOffset = ((change?[NSKeyValueChangeKey.newKey] as AnyObject).cgPointValue?.y)!
+				} else {
+					newOffset = ((change?[NSKeyValueChangeKey.newKey] as AnyObject).cgPointValue?.x)!
+				}
+				handleLoadingCycle(newOffset)
+			}			
 		}
 	}
 	

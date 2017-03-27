@@ -43,6 +43,11 @@ open class PullToRefreshManager: NSObject {
 		self.scrollViewStateController.updateActivityIndicatorColor(color)
 	}
 	
+	open func deactivate() {
+		scrollViewStateController.loadingView.removeFromSuperview()
+		scrollViewStateController.delegate = nil
+		scrollViewStateController.dataSource = nil
+	}
 }
 
 extension PullToRefreshManager: ScrollViewStateControllerDataSource {
