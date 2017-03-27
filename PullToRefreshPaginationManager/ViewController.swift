@@ -21,16 +21,16 @@ class ViewController: UIViewController {
 		
 		/* If you want to use Pull To Refresh */
 		self.refreshManager = PullToRefreshManager(scrollView: self.scrollView, delegate: self)
-		self.refreshManager.updateActivityIndicatorStyle(.WhiteLarge)
-		self.refreshManager.updateActivityIndicatorColor(UIColor.blueColor())
+		self.refreshManager.updateActivityIndicatorStyle(.whiteLarge)
+		self.refreshManager.updateActivityIndicatorColor(UIColor.blue)
 		
 		/* If you want to use Pagination */
 		self.paginatioManager = PaginationManager(scrollView: self.scrollView, delegate: self)
-		self.paginatioManager.updateActivityIndicatorColor(UIColor.redColor())
+		self.paginatioManager.updateActivityIndicatorColor(UIColor.red)
 		
 		/* If you want to use Horizontal Pagination */
 		self.horizontalPaginationManager = HorizontalPaginationManager(scrollView: self.scrollView, delegate: self)
-		self.horizontalPaginationManager.updateActivityIndicatorColor(UIColor.purpleColor())
+		self.horizontalPaginationManager.updateActivityIndicatorColor(UIColor.purple)
 	}
 
 	override func didReceiveMemoryWarning() {
@@ -42,35 +42,34 @@ class ViewController: UIViewController {
 
 extension ViewController: PullToRefreshManagerDelegate {
 	
-	func pullToRefreshManagerDidStartLoading(controller: PullToRefreshManager, onCompletion: CompletionHandler) {
-		let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
-		dispatch_after(delayTime, dispatch_get_main_queue()) { () -> Void in
+	public func pullToRefreshManagerDidStartLoading(_ controller: PullToRefreshManager, onCompletion: @escaping () -> Void) {
+		let delayTime = DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+		DispatchQueue.main.asyncAfter(deadline: delayTime) { () -> Void in
 			onCompletion()
 		}
 	}
-	
 }
 
 extension ViewController: PaginationManagerDelegate {
-	func paginationManagerDidStartLoading(controller: PaginationManager, onCompletion: CompletionHandler) {
-		let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
-		dispatch_after(delayTime, dispatch_get_main_queue()) { () -> Void in
+	
+	public func paginationManagerDidStartLoading(_ controller: PaginationManager, onCompletion: @escaping () -> Void) {
+		let delayTime = DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+		DispatchQueue.main.asyncAfter(deadline: delayTime) { () -> Void in
 			onCompletion()
 		}
 	}
 	
-	func paginationManagerShouldStartLoading(controller: PaginationManager) -> Bool {
+	public func paginationManagerShouldStartLoading(_ controller: PaginationManager) -> Bool {
 		return true
 	}
 }
 
 extension ViewController: HorizontalPaginationManagerDelegate {
 	
-	func horizontalPaginationManagerDidStartLoading(controller: HorizontalPaginationManager, onCompletion: CompletionHandler) {
-		let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
-		dispatch_after(delayTime, dispatch_get_main_queue()) { () -> Void in
+	public func horizontalPaginationManagerDidStartLoading(_ controller: HorizontalPaginationManager, onCompletion: @escaping () -> Void) {
+		let delayTime = DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+		DispatchQueue.main.asyncAfter(deadline: delayTime) { () -> Void in
 			onCompletion()
 		}
 	}
-	
 }

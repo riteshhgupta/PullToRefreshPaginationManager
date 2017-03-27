@@ -10,17 +10,18 @@ import Foundation
 import UIKit
 
 public protocol PullToRefreshManagerDelegate: NSObjectProtocol {
-	func pullToRefreshManagerDidStartLoading(controller: PullToRefreshManager, onCompletion: CompletionHandler)
+	
+	func pullToRefreshManagerDidStartLoading(_ controller: PullToRefreshManager, onCompletion: @escaping CompletionHandler)
 }
 
-public class PullToRefreshManager: NSObject {
+open class PullToRefreshManager: NSObject {
 	
 	weak var delegate: PullToRefreshManagerDelegate?
 	var scrollView: UIScrollView!
 	var scrollViewStateController: ScrollViewStateController!
 	var stateConfig: StateConfiguration!
 	
-	public init(scrollView: UIScrollView?, delegate: PullToRefreshManagerDelegate?, stateConfig: StateConfiguration = StateConfiguration(thresholdInitiateLoading: 0, loaderFrame: CGRectMake(0, -kDefaultLoaderHeight, UIScreen.mainScreen().bounds.size.width, kDefaultLoaderHeight), thresholdStartLoading: -kDefaultLoaderHeight)) {
+	public init(scrollView: UIScrollView?, delegate: PullToRefreshManagerDelegate?, stateConfig: StateConfiguration = StateConfiguration(thresholdInitiateLoading: 0, loaderFrame: CGRect(x: 0, y: -kDefaultLoaderHeight, width: UIScreen.main.bounds.size.width, height: kDefaultLoaderHeight), thresholdStartLoading: -kDefaultLoaderHeight)) {
 		
 		super.init()
 		
@@ -34,11 +35,11 @@ public class PullToRefreshManager: NSObject {
 		self.init(scrollView: nil, delegate: nil)
 	}
 	
-	public func updateActivityIndicatorStyle(newStyle: UIActivityIndicatorViewStyle) {
+	open func updateActivityIndicatorStyle(_ newStyle: UIActivityIndicatorViewStyle) {
 		self.scrollViewStateController.updateActivityIndicatorStyle(newStyle)
 	}
 	
-	public func updateActivityIndicatorColor(color: UIColor) {
+	open func updateActivityIndicatorColor(_ color: UIColor) {
 		self.scrollViewStateController.updateActivityIndicatorColor(color)
 	}
 	
@@ -46,19 +47,19 @@ public class PullToRefreshManager: NSObject {
 
 extension PullToRefreshManager: ScrollViewStateControllerDataSource {
 	
-	public func stateControllerShouldInitiateLoading(offset: CGFloat) -> Bool {
+	public func stateControllerShouldInitiateLoading(_ offset: CGFloat) -> Bool {
 		return offset < self.stateConfig.thresholdInitiateLoading
 	}
 	
-	public func stateControllerDidReleaseToStartLoading(offset: CGFloat) -> Bool {
+	public func stateControllerDidReleaseToStartLoading(_ offset: CGFloat) -> Bool {
 		return offset < self.stateConfig.thresholdStartLoading
 	}
 	
-	public func stateControllerDidReleaseToCancelLoading(offset: CGFloat) -> Bool {
+	public func stateControllerDidReleaseToCancelLoading(_ offset: CGFloat) -> Bool {
 		return offset > self.stateConfig.thresholdStartLoading
 	}
 	
-	public func stateControllerInsertLoaderInsets(startAnimation: Bool) -> UIEdgeInsets {
+	public func stateControllerInsertLoaderInsets(_ startAnimation: Bool) -> UIEdgeInsets {
 		var newInset = scrollView.contentInset
 		newInset.top += startAnimation ? self.stateConfig.loaderFrame.size.height : -self.stateConfig.loaderFrame.size.height
 		return newInset
@@ -72,7 +73,7 @@ extension PullToRefreshManager: ScrollViewStateControllerDataSource {
 
 extension PullToRefreshManager: ScrollViewStateControllerDelegate {
 	
-	public func stateControllerDidStartLoading(controller: ScrollViewStateController, onCompletion: CompletionHandler) {
+	public func stateControllerDidStartLoading(_ controller: ScrollViewStateController, onCompletion: @escaping CompletionHandler) {
 		self.delegate?.pullToRefreshManagerDidStartLoading(self, onCompletion: onCompletion)
 	}
 	

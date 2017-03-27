@@ -16,10 +16,10 @@ import UIKit
 */
 
 enum ScrollViewStateControllerState: Int {
-	case Normal         // when user is simply scrolling to see data
-	case Ready          // when user has pulled the scrollView enough i.e. beyond a threshold and loading could begin if released at this stage
-	case WillBeLoading  // when user has released the scrollView (beyond a threshold) and it is about to get stablise at a threshold
-	case Loading        // when user has started loading
+	case normal         // when user is simply scrolling to see data
+	case ready          // when user has pulled the scrollView enough i.e. beyond a threshold and loading could begin if released at this stage
+	case willBeLoading  // when user has released the scrollView (beyond a threshold) and it is about to get stablise at a threshold
+	case loading        // when user has started loading
 }
 
 let kDefaultLoaderHeight: CGFloat = 64
@@ -31,19 +31,19 @@ public protocol ScrollViewStateControllerDataSource: NSObjectProtocol {
 	func stateControllerWillObserveVerticalScrolling() -> Bool
 	
 	// it defines the condition when to enter the loading zone
-	func stateControllerShouldInitiateLoading(offset: CGFloat) -> Bool
+	func stateControllerShouldInitiateLoading(_ offset: CGFloat) -> Bool
 	
 	// it defines the condition when the loader stablises (after releasing) and loading can start
-	func stateControllerDidReleaseToStartLoading(offset: CGFloat) -> Bool
+	func stateControllerDidReleaseToStartLoading(_ offset: CGFloat) -> Bool
 	
 	// it defines the condition when to cancel loading
-	func stateControllerDidReleaseToCancelLoading(offset: CGFloat) -> Bool
+	func stateControllerDidReleaseToCancelLoading(_ offset: CGFloat) -> Bool
 	
 	// it will return the loader frame
 	func stateControllerLoaderFrame() -> CGRect
 	
 	// it will return the loader inset
-	func stateControllerInsertLoaderInsets(startAnimation: Bool) -> UIEdgeInsets
+	func stateControllerInsertLoaderInsets(_ startAnimation: Bool) -> UIEdgeInsets
 }
 
 extension ScrollViewStateControllerDataSource {
@@ -56,31 +56,31 @@ extension ScrollViewStateControllerDataSource {
 }
 
 public protocol ScrollViewStateControllerDelegate: NSObjectProtocol {
-	func stateControllerWillStartLoading(controller: ScrollViewStateController, loadingView: UIActivityIndicatorView)
-	func stateControllerShouldStartLoading(controller: ScrollViewStateController) -> Bool
-	func stateControllerDidStartLoading(controller: ScrollViewStateController, onCompletion: CompletionHandler)
-	func stateControllerDidFinishLoading(controller: ScrollViewStateController)
+	func stateControllerWillStartLoading(_ controller: ScrollViewStateController, loadingView: UIActivityIndicatorView)
+	func stateControllerShouldStartLoading(_ controller: ScrollViewStateController) -> Bool
+	func stateControllerDidStartLoading(_ controller: ScrollViewStateController, onCompletion: @escaping CompletionHandler)
+	func stateControllerDidFinishLoading(_ controller: ScrollViewStateController)
 }
 
 extension ScrollViewStateControllerDelegate {
-	public func stateControllerShouldStartLoading(controller: ScrollViewStateController) -> Bool {
+	public func stateControllerShouldStartLoading(_ controller: ScrollViewStateController) -> Bool {
 		// default implementation
 		return true
 	}
 	
-	public func stateControllerWillStartLoading(controller: ScrollViewStateController, loadingView: UIActivityIndicatorView) {
+	public func stateControllerWillStartLoading(_ controller: ScrollViewStateController, loadingView: UIActivityIndicatorView) {
 		// default imlpementation
 	}
 	
-	public func stateControllerDidFinishLoading(controller: ScrollViewStateController) {
+	public func stateControllerDidFinishLoading(_ controller: ScrollViewStateController) {
 		// default imlpementation
 	}
 }
 
-public class StateConfiguration: NSObject {
+open class StateConfiguration: NSObject {
 	var thresholdInitiateLoading: CGFloat = 0
 	var thresholdStartLoading: CGFloat = 0
-	var loaderFrame: CGRect = CGRectZero
+	var loaderFrame: CGRect = CGRect.zero
 	var showDefaultLoader = true
 	
 	init(thresholdInitiateLoading: CGFloat, loaderFrame: CGRect, thresholdStartLoading: CGFloat, showDefaultLoader: Bool = true) {
@@ -91,18 +91,18 @@ public class StateConfiguration: NSObject {
 	}
 }
 
-public class ScrollViewStateController: NSObject {
+open class ScrollViewStateController: NSObject {
 	
 	let kDefaultLoadingHeight: CGFloat = 64.0
-	let kInsetInsertAnimationDuration: NSTimeInterval = 0.7
-	let kInsetRemoveAnimationDuration: NSTimeInterval = 0.3
+	let kInsetInsertAnimationDuration: TimeInterval = 0.7
+	let kInsetRemoveAnimationDuration: TimeInterval = 0.3
 	
 	weak var dataSource: ScrollViewStateControllerDataSource!
 	weak var delegate: ScrollViewStateControllerDelegate!
 	
-	private var scrollView: UIScrollView!
-	private var state: ScrollViewStateControllerState = .Normal
-	private var loadingView = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+	fileprivate var scrollView: UIScrollView!
+	fileprivate var state: ScrollViewStateControllerState = .normal
+	fileprivate var loadingView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
 	
 	public init(scrollView: UIScrollView?, dataSource: ScrollViewStateControllerDataSource?, delegate: ScrollViewStateControllerDelegate?, showDefaultLoader: Bool = true) {
 		super.init()
@@ -110,9 +110,9 @@ public class ScrollViewStateController: NSObject {
 		self.scrollView = scrollView
 		self.dataSource = dataSource
 		self.delegate = delegate
-		self.state = .Normal
+		self.state = .normal
 		
-		self.scrollView.addObserver(self, forKeyPath: "contentOffset", options: NSKeyValueObservingOptions.New, context: nil)
+		self.scrollView.addObserver(self, forKeyPath: "contentOffset", options: NSKeyValueObservingOptions.new, context: nil)
 		if showDefaultLoader {
 			addDefaultLoadView()
 		}
@@ -122,72 +122,72 @@ public class ScrollViewStateController: NSObject {
 		self.init(scrollView: nil, dataSource: nil, delegate: nil)
 	}
 	
-	private func addDefaultLoadView() {
+	fileprivate func addDefaultLoadView() {
 		self.loadingView.frame = self.dataSource.stateControllerLoaderFrame()
 		self.scrollView.addSubview(self.loadingView)
 	}
 	
-	override public func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+	override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
 		if keyPath == "contentOffset" {
 			var newOffset: CGFloat = 0
 			if dataSource.stateControllerWillObserveVerticalScrolling() {
-				newOffset = (change?[NSKeyValueChangeNewKey]?.CGPointValue?.y)!
+				newOffset = ((change?[NSKeyValueChangeKey.newKey] as AnyObject).cgPointValue?.y)!
 				
 			} else {
-				newOffset = (change?[NSKeyValueChangeNewKey]?.CGPointValue?.x)!
+				newOffset = ((change?[NSKeyValueChangeKey.newKey] as AnyObject).cgPointValue?.x)!
 			}
 			
 			handleLoadingCycle(newOffset)
 		}
 	}
 	
-	func updateActivityIndicatorStyle(newStyle: UIActivityIndicatorViewStyle) {
+	func updateActivityIndicatorStyle(_ newStyle: UIActivityIndicatorViewStyle) {
 		self.loadingView.removeFromSuperview();
 		self.loadingView = UIActivityIndicatorView(activityIndicatorStyle: newStyle)
 		self.loadingView.hidesWhenStopped = false
 		addDefaultLoadView()
 	}
 	
-	func updateActivityIndicatorColor(color: UIColor) {
+	func updateActivityIndicatorColor(_ color: UIColor) {
 		self.loadingView.color = color
 	}
 	
-	private func handleLoadingCycle(offset: CGFloat) {
+	fileprivate func handleLoadingCycle(_ offset: CGFloat) {
 		if (self.dataSource.stateControllerShouldInitiateLoading(offset)) {
 			self.delegate.stateControllerWillStartLoading(self, loadingView: self.loadingView)
 		}
 		
-		if self.scrollView.dragging {
+		if self.scrollView.isDragging {
 			self.loadingView.alpha = fabs(self.scrollView.contentOffset.y)/128.0
-			self.loadingView.transform = CGAffineTransformMakeRotation((CGFloat(2*M_PI))*(fabs(self.scrollView.contentOffset.y)/128))
+			self.loadingView.transform = CGAffineTransform(rotationAngle: (CGFloat(2*M_PI))*(fabs(self.scrollView.contentOffset.y)/128))
 			
 			switch self.state {
-			case .Normal:
+			case .normal:
 				if self.dataSource.stateControllerDidReleaseToStartLoading(offset) {
-					self.state = .Ready
+					self.state = .ready
 				}
 				
-			case .Ready:
+			case .ready:
 				if self.dataSource.stateControllerDidReleaseToCancelLoading(offset) {
-					self.state = .Normal
+					self.state = .normal
 				}
 				
 			default: break
 			}
 			
-		} else if scrollView.decelerating {
-			if self.state == .Ready {
+		} else if scrollView.isDecelerating {
+			if self.state == .ready {
 				handleReadyState()
 			}
 		}
 	}
 	
-	private func handleReadyState() {
-		self.state = .WillBeLoading
+	fileprivate func handleReadyState() {
+		self.state = .willBeLoading
 		
 		if self.delegate.stateControllerShouldStartLoading(self) {
 			self.loadingView.frame = self.dataSource.stateControllerLoaderFrame()
-			dispatch_async(dispatch_get_main_queue()) { () -> Void in
+			DispatchQueue.main.async { () -> Void in
 				self.startUIAnimation({ [weak self] () -> Void in
 					if let weakSelf = self {
 						weakSelf.startLoading()
@@ -196,12 +196,12 @@ public class ScrollViewStateController: NSObject {
 			}
 			
 		} else {
-			self.state = .Normal
+			self.state = .normal
 		}
 	}
 	
-	private func startLoading() {
-		self.state = .Loading
+	fileprivate func startLoading() {
+		self.state = .loading
 		
 		self.delegate.stateControllerDidStartLoading(self, onCompletion: {[weak self] () -> Void in
 			if let weakSelf = self {
@@ -210,9 +210,9 @@ public class ScrollViewStateController: NSObject {
 			})
 	}
 	
-	private func stopLoading() {
-		self.state = .Normal
-		dispatch_async(dispatch_get_main_queue()) { () -> Void in
+	fileprivate func stopLoading() {
+		self.state = .normal
+		DispatchQueue.main.async { () -> Void in
 			self.stopUIAnimation({ [weak self] () -> Void in
 				if let weakSelf = self {
 					weakSelf.delegate.stateControllerDidFinishLoading(weakSelf)
@@ -221,21 +221,21 @@ public class ScrollViewStateController: NSObject {
 		}
 	}
 	
-	private func startUIAnimation(onCompletion: CompletionHandler) {
+	fileprivate func startUIAnimation(_ onCompletion: @escaping CompletionHandler) {
 		handleAnimation(startAnimation: true) { () -> Void in
 			onCompletion()
 		}
 	}
 	
-	private func stopUIAnimation(onCompletion: CompletionHandler) {
+	fileprivate func stopUIAnimation(_ onCompletion: @escaping CompletionHandler) {
 		handleAnimation(startAnimation: false) { () -> Void in
 			onCompletion()
 		}
 	}
 	
-	private func handleAnimation(startAnimation startAnimation: Bool, onCompletion: CompletionHandler) {
+	fileprivate func handleAnimation(startAnimation: Bool, onCompletion: @escaping CompletionHandler) {
 		if startAnimation {
-			dispatch_async(dispatch_get_main_queue()) { () -> Void in
+			DispatchQueue.main.async { () -> Void in
 				self.loadingView.startAnimating()
 				let oldContentOffset = self.scrollView.contentOffset
 				self.scrollView.contentInset = self.dataSource.stateControllerInsertLoaderInsets(startAnimation)
@@ -244,9 +244,9 @@ public class ScrollViewStateController: NSObject {
 			}
 			
 		} else {
-			dispatch_async(dispatch_get_main_queue()) { () -> Void in
+			DispatchQueue.main.async { () -> Void in
 				self.loadingView.stopAnimating()
-				UIView.animateWithDuration(self.kInsetRemoveAnimationDuration, animations: {[weak self] () -> Void in
+				UIView.animate(withDuration: self.kInsetRemoveAnimationDuration, animations: {[weak self] () -> Void in
 					if let weakSelf = self {
 						weakSelf.scrollView.contentInset = weakSelf.dataSource.stateControllerInsertLoaderInsets(startAnimation)
 					}

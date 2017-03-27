@@ -10,17 +10,18 @@ import Foundation
 import UIKit
 
 public protocol HorizontalPaginationManagerDelegate: NSObjectProtocol {
-	func horizontalPaginationManagerDidStartLoading(controller: HorizontalPaginationManager, onCompletion: CompletionHandler)
+	
+	func horizontalPaginationManagerDidStartLoading(_ controller: HorizontalPaginationManager, onCompletion: @escaping CompletionHandler)
 }
 
-public class HorizontalPaginationManager: NSObject {
+open class HorizontalPaginationManager: NSObject {
 	
 	weak var delegate: HorizontalPaginationManagerDelegate?
 	var scrollView: UIScrollView!
 	var scrollViewStateController: ScrollViewStateController!
 	var stateConfig: StateConfiguration!
 	
-	public init(scrollView: UIScrollView?, delegate: HorizontalPaginationManagerDelegate?, stateConfig: StateConfiguration = StateConfiguration(thresholdInitiateLoading: 0, loaderFrame: CGRectMake(0, 0, kDefaultLoaderHeight, UIScreen.mainScreen().bounds.size.height), thresholdStartLoading: 0)) {
+	public init(scrollView: UIScrollView?, delegate: HorizontalPaginationManagerDelegate?, stateConfig: StateConfiguration = StateConfiguration(thresholdInitiateLoading: 0, loaderFrame: CGRect(x: 0, y: 0, width: kDefaultLoaderHeight, height: UIScreen.main.bounds.size.height), thresholdStartLoading: 0)) {
 		
 		super.init()
 		
@@ -34,17 +35,17 @@ public class HorizontalPaginationManager: NSObject {
 		self.init(scrollView: nil, delegate: nil)
 	}
 	
-	private func calculateDelta(offset: CGFloat) -> CGFloat {
+	fileprivate func calculateDelta(_ offset: CGFloat) -> CGFloat {
 		let calculatedOffset = max(0, scrollView.contentSize.width - scrollView.frame.size.width)
 		let delta = offset - calculatedOffset
 		return delta
 	}
  
-	public func updateActivityIndicatorStyle(newStyle: UIActivityIndicatorViewStyle) {
+	open func updateActivityIndicatorStyle(_ newStyle: UIActivityIndicatorViewStyle) {
 		self.scrollViewStateController.updateActivityIndicatorStyle(newStyle)
 	}
 	
-	public func updateActivityIndicatorColor(color: UIColor) {
+	open func updateActivityIndicatorColor(_ color: UIColor) {
 		self.scrollViewStateController.updateActivityIndicatorColor(color)
 	}
 	
@@ -56,22 +57,22 @@ extension HorizontalPaginationManager: ScrollViewStateControllerDataSource {
 		return false
 	}
 	
-	public func stateControllerShouldInitiateLoading(offset: CGFloat) -> Bool {
+	public func stateControllerShouldInitiateLoading(_ offset: CGFloat) -> Bool {
 		let shouldStart = self.calculateDelta(offset) > self.stateConfig.thresholdInitiateLoading
 		return shouldStart
 	}
 	
-	public func stateControllerDidReleaseToStartLoading(offset: CGFloat) -> Bool {
+	public func stateControllerDidReleaseToStartLoading(_ offset: CGFloat) -> Bool {
 		let shouldStart = self.calculateDelta(offset) > self.stateConfig.thresholdStartLoading
 		return shouldStart
 	}
 	
-	public func stateControllerDidReleaseToCancelLoading(offset: CGFloat) -> Bool {
+	public func stateControllerDidReleaseToCancelLoading(_ offset: CGFloat) -> Bool {
 		let shouldStart = self.calculateDelta(offset) < self.stateConfig.thresholdStartLoading
 		return shouldStart
 	}
 	
-	public func stateControllerInsertLoaderInsets(startAnimation: Bool) -> UIEdgeInsets {
+	public func stateControllerInsertLoaderInsets(_ startAnimation: Bool) -> UIEdgeInsets {
 		var newInset = scrollView?.contentInset
 		newInset?.right += startAnimation ? self.stateConfig.loaderFrame.size.width : -self.stateConfig.loaderFrame.size.width
 		return newInset!
@@ -88,7 +89,7 @@ extension HorizontalPaginationManager: ScrollViewStateControllerDataSource {
 
 extension HorizontalPaginationManager: ScrollViewStateControllerDelegate {
 	
-	public func stateControllerDidStartLoading(controller: ScrollViewStateController, onCompletion: CompletionHandler) {
+	public func stateControllerDidStartLoading(_ controller: ScrollViewStateController, onCompletion: @escaping CompletionHandler) {
 		self.delegate?.horizontalPaginationManagerDidStartLoading(self, onCompletion: onCompletion)
 	}
 	

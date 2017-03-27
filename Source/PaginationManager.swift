@@ -10,18 +10,19 @@ import Foundation
 import UIKit
 
 public protocol PaginationManagerDelegate: NSObjectProtocol {
-	func paginationManagerShouldStartLoading(controller: PaginationManager) -> Bool
-	func paginationManagerDidStartLoading(controller: PaginationManager, onCompletion: CompletionHandler)
+	
+	func paginationManagerShouldStartLoading(_ controller: PaginationManager) -> Bool
+	func paginationManagerDidStartLoading(_ controller: PaginationManager, onCompletion: @escaping CompletionHandler)
 }
 
-public class PaginationManager: NSObject {
+open class PaginationManager: NSObject {
 	
 	weak var delegate: PaginationManagerDelegate?
 	var scrollView: UIScrollView!
 	var scrollViewStateController: ScrollViewStateController!
 	var stateConfig: StateConfiguration!
 	
-	public init(scrollView: UIScrollView?, delegate: PaginationManagerDelegate?, stateConfig: StateConfiguration = StateConfiguration(thresholdInitiateLoading: 0, loaderFrame: CGRectMake(0, 0, UIScreen.mainScreen().bounds.size.width, kDefaultLoaderHeight), thresholdStartLoading: kDefaultLoaderHeight)) {
+	public init(scrollView: UIScrollView?, delegate: PaginationManagerDelegate?, stateConfig: StateConfiguration = StateConfiguration(thresholdInitiateLoading: 0, loaderFrame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: kDefaultLoaderHeight), thresholdStartLoading: kDefaultLoaderHeight)) {
 		
 		super.init()
 		
@@ -35,17 +36,17 @@ public class PaginationManager: NSObject {
 		self.init(scrollView: nil, delegate: nil)
 	}
 	
-	private func calculateDelta(offset: CGFloat) -> CGFloat {
+	fileprivate func calculateDelta(_ offset: CGFloat) -> CGFloat {
 		let calculatedOffset = max(0, scrollView.contentSize.height - scrollView.frame.size.height)
 		let delta = offset - calculatedOffset
 		return delta
 	}
 	
-	public func updateActivityIndicatorStyle(newStyle: UIActivityIndicatorViewStyle) {
+	open func updateActivityIndicatorStyle(_ newStyle: UIActivityIndicatorViewStyle) {
 		self.scrollViewStateController.updateActivityIndicatorStyle(newStyle)
 	}
 	
-	public func updateActivityIndicatorColor(color: UIColor) {
+	open func updateActivityIndicatorColor(_ color: UIColor) {
 		self.scrollViewStateController.updateActivityIndicatorColor(color)
 	}
 	
@@ -53,22 +54,22 @@ public class PaginationManager: NSObject {
 
 extension PaginationManager: ScrollViewStateControllerDataSource {
 	
-	public func stateControllerShouldInitiateLoading(offset: CGFloat) -> Bool {
+	public func stateControllerShouldInitiateLoading(_ offset: CGFloat) -> Bool {
 		let shouldStart = self.calculateDelta(offset) > self.stateConfig.thresholdInitiateLoading
 		return shouldStart
 	}
 	
-	public func stateControllerDidReleaseToStartLoading(offset: CGFloat) -> Bool {
+	public func stateControllerDidReleaseToStartLoading(_ offset: CGFloat) -> Bool {
 		let shouldStart = self.calculateDelta(offset) > self.stateConfig.thresholdStartLoading
 		return shouldStart
 	}
 	
-	public func stateControllerDidReleaseToCancelLoading(offset: CGFloat) -> Bool {
+	public func stateControllerDidReleaseToCancelLoading(_ offset: CGFloat) -> Bool {
 		let shouldStart = self.calculateDelta(offset) < self.stateConfig.thresholdStartLoading
 		return shouldStart
 	}
 	
-	public func stateControllerInsertLoaderInsets(startAnimation: Bool) -> UIEdgeInsets {
+	public func stateControllerInsertLoaderInsets(_ startAnimation: Bool) -> UIEdgeInsets {
 		var newInset = scrollView?.contentInset
 		newInset?.bottom += startAnimation ? self.stateConfig.loaderFrame.size.height : -self.stateConfig.loaderFrame.size.height
 		return newInset!
@@ -85,11 +86,11 @@ extension PaginationManager: ScrollViewStateControllerDataSource {
 
 extension PaginationManager: ScrollViewStateControllerDelegate {
 	
-	public func stateControllerDidStartLoading(controller: ScrollViewStateController, onCompletion: CompletionHandler) {
+	public func stateControllerDidStartLoading(_ controller: ScrollViewStateController, onCompletion: @escaping CompletionHandler) {
 		self.delegate?.paginationManagerDidStartLoading(self, onCompletion: onCompletion)
 	}
 	
-	public func stateControllerShouldStartLoading(controller: ScrollViewStateController) -> Bool {
+	public func stateControllerShouldStartLoading(_ controller: ScrollViewStateController) -> Bool {
 		return self.delegate?.paginationManagerShouldStartLoading(self) ?? true
 	}
 	
